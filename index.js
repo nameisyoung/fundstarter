@@ -5,15 +5,16 @@ var fs = require('fs');
 
 
 // Web server object
-http.createServer(function (request, response) {
-//    response
-    fs.readFile('index.html', function (err, data) {
-	response.writeHead(200, {'Content-Type': 'text/html', 'Content-Length':data.length});
-	response.write(data);
+fs.readFile('./public/index.html', function(err, html) {
+    if(err) {
+	throw err;
+    }
+    http.createServer(function(request, response) {
+	response.writeHead(200, {'Content-Type': 'text/html'});
+	response.write(html);
 	response.end();
-    });
-}).listen(8080);
-
+    }).listen(8080);
+});
 //app.set('port', (process.env.PORT || 8080))
 //app.use(express.static(__dirname + '/public'))
 
