@@ -5,7 +5,7 @@ var fs = require('fs');
 
 
 // Web server object
-fs.readFile('./public/index.html', function(err, html) {
+fs.readFileSync('./public/index.html', function(err, html) {
     if(err) {
 	throw err;
     }
