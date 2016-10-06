@@ -15,39 +15,33 @@ http.createServer(function (request, response) {
 *************************************************************************************/
 
 /*** Part 2: fs and buffer.  **/
-var path = './public/index.html';
+var file = './public/index.html';
 http.createServer(function (request, response) {
     response.writeHead(200, {'Content-Type': 'text/html'});
 
-    fs.open(path, 'r', function(err, fd) {
-	if(err) {
-	    if(err.code === "ENOENT") {
-		console.log('File does not exist.');
-		return;
-	    } else {
-		throw err;
-	    }
-	} else {
-	    fs.fstat(fd, function(err, stats) {
-		var bufferSize = stats.size,
-		  chunkSize = 512,
-		  buffer = new Buffer(bufferSize),
-		  bytesRead = 0;
+    fs.stat(file, function(err, stats){
+	if(!err && stats.isFile()){
+	    console.log(stats.size);
+	    var buffer = new Buffer(stats.size);
 
-		while(bytesRead < bufferSize) {
-		    if((bytesRead+chunkSize) > bufferSize) {
-			chunkSize = (bufferSize - bytesRead);
+	    fs.open(file, 'r', function(err, fd) {
+		if(err) {
+		    if(err.code === "ENOENT") {
+			console.log('File does not exist.');
+			return;
+		    } else {
+			throw err;
 		    }
-		    fs.read(fd, buffer, bytesRead, chunkSize, bytesRead);
-		    bytesRead += chunkSize;
+		} else {
+		    fs.read(fd, buffer, 0, stats.size, null);
+		    //console.log(buffer.toString('utf8', 0, stats.size));  // for test
+		    response.write(buffer.toString('utf8', 0, stats.size));
+		    response.end();
+		    fs.close(fd);
 		}
-		//console.log(buffer.toString('utf8', 0, bufferSize));  // for test
-		response.end(buffer.toString('utf8', 0, bufferSize));
-		fs.close(fd);
-	    }); // fs.fstat
-	}  // if(err)-else
-    }); // fs.open
-
+	    }); // fs.open
+	} // if(!err)
+    }); // fs.stat
 }).listen(port);
 
 console.log("Node app is running at:", port);
